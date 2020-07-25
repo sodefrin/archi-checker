@@ -1,4 +1,4 @@
-package main
+package src
 
 type Layer struct {
 	Name string
