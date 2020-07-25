@@ -2,14 +2,17 @@ package parser
 
 import (
 	"fmt"
+	"go/ast"
 	"go/parser"
 	"go/token"
 	"strings"
 )
 
 type Import struct {
-	From string
-	To   string
+	File   *ast.File
+	Import *ast.ImportSpec
+	From   string
+	To     string
 }
 
 func ParsePkgs(modulePath string, pkgs ...string) ([]*Import, error) {
@@ -38,8 +41,10 @@ func parsePkg(modulePath string, pkg string) ([]*Import, error) {
 		for _, file := range pkg.Files {
 			for _, ip := range file.Imports {
 				ips = append(ips, &Import{
-					From: path,
-					To:   strings.Trim(ip.Path.Value, "\""),
+					File:   file,
+					Import: ip,
+					From:   path,
+					To:     strings.Trim(ip.Path.Value, "\""),
 				})
 			}
 		}
