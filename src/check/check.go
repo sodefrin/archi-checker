@@ -22,6 +22,23 @@ func ArchiCheck(umlPath, modulePath string, pkgs ...string) ([]*Result, error) {
 	return run(deps, ips), nil
 }
 
-func run(dep *archi.Dependencies, ips []*parser.Import) []*Result {
-	return nil
+func run(deps *archi.Dependencies, ips []*parser.Import) []*Result {
+	ret := []*Result{}
+
+	for _, ip := range ips {
+		if !deps.LayerMap.Exist(ip.From) || !deps.LayerMap.Exist(ip.To) {
+			continue
+		}
+		for _, dep := range deps.Dependencies {
+			if xor(dep.From.Exist(ip.From), dep.To.Exist(ip.To)) {
+				ret = append(ret, &Result{})
+			}
+		}
+	}
+
+	return ret
+}
+
+func xor(a, b bool) bool {
+	return (a || b) && !(a && b)
 }

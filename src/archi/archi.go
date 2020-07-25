@@ -61,7 +61,7 @@ func NewLayerMap() LayerMap {
 	return map[string]*Layer{}
 }
 
-func (l LayerMap) updateLayerMap(line string) error {
+func (lm LayerMap) updateLayerMap(line string) error {
 	ss := strings.Split(line, ":")
 	if len(ss) != 2 {
 		return fmt.Errorf("invalid layer description: %s", line)
@@ -70,13 +70,39 @@ func (l LayerMap) updateLayerMap(line string) error {
 	ss0 := strings.TrimSpace(ss[0])
 	ss1 := strings.TrimSpace(ss[1])
 
-	if layer, ok := l[ss0]; !ok {
-		l[ss0] = &Layer{Name: ss0, Pkgs: []string{ss1}}
+	if layer, ok := lm[ss0]; !ok {
+		lm[ss0] = &Layer{Name: ss0, Pkgs: []string{ss1}}
 	} else {
 		layer.Pkgs = append(layer.Pkgs, ss1)
 	}
 
 	return nil
+}
+
+func (lm LayerMap) Exist(pkg string) bool {
+	for _, l := range lm {
+		if l.Exist(pkg) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (l Layer) Exist(pkg string) bool {
+	for _, p := range l.Pkgs {
+		a := strings.Split(p, "/")
+		b := strings.Split(pkg, "/")
+		for i, v := range b {
+			if len(a) == i {
+				return true
+			}
+			if v == a[i] {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func isLayer(line string) bool {
