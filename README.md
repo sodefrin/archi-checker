@@ -31,7 +31,7 @@ We can validate this package using archi-checker command.
 $ archi-checker -uml uml/this_package.uml -pkgname github.com/sodefrin/archi-checker src/archi src/check src/parser  
 ```
 
-If the we change dependency like below to apply DIP, the error wil be repoted.
+If we change dependency like below to apply DIP, the error wil be repoted.
 
 ![dip-archi](./uml/dip_archi.png)
 
