@@ -17,12 +17,13 @@ type config struct {
 	pkgs    []string
 }
 
-const usage = "archi-checker -uml [path to uml] [target pacakges]"
+const usage = "archi-checker [target pacakges]"
 
 func parseConfig() (config, error) {
 	cfg := config{}
 
-	flag.StringVar(&cfg.umlPath, "uml", "", "uml path")
+	flag.StringVar(&cfg.umlPath, "uml", ".archi-check.uml", "uml path")
+
 	mod, err := ioutil.ReadFile("./go.mod")
 	if err != nil {
 		return cfg, err
