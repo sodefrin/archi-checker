@@ -11,7 +11,12 @@ func TestMain(t *testing.T) {
 			haveConfig: config{
 				umlPath: "uml/this_package.uml",
 				pkgname: "github.com/sodefrin/archi-checker",
-				pkgs:    []string{".", "src/archi", "src/check", "src/parser"},
+				pkgs: []string{
+					"github.com/sodefrin/archi-checker",
+					"github.com/sodefrin/archi-checker/src/archi",
+					"github.com/sodefrin/archi-checker/src/check",
+					"github.com/sodefrin/archi-checker/src/parser",
+				},
 			},
 			wantRet: 0,
 		},
@@ -19,7 +24,12 @@ func TestMain(t *testing.T) {
 			haveConfig: config{
 				umlPath: "uml/this_package_dip.uml",
 				pkgname: "github.com/sodefrin/archi-checker",
-				pkgs:    []string{".", "src/archi", "src/check", "src/parser"},
+				pkgs: []string{
+					"github.com/sodefrin/archi-checker",
+					"github.com/sodefrin/archi-checker/src/archi",
+					"github.com/sodefrin/archi-checker/src/check",
+					"github.com/sodefrin/archi-checker/src/parser",
+				},
 			},
 			wantRet: 1,
 		},

@@ -14,7 +14,7 @@ func TestParsePkgs(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	ret, err := ParsePkgs("github.com/sodefrin/archi-checker", "src/parser")
+	ret, err := ParsePkgs("github.com/sodefrin/archi-checker", "github.com/sodefrin/archi-checker/src/parser")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -26,7 +26,7 @@ func TestParsePkgs(t *testing.T) {
 		{From: "github.com/sodefrin/archi-checker/src/parser", To: "github.com/google/go-cmp/cmp/cmpopts"},
 		{From: "github.com/sodefrin/archi-checker/src/parser", To: "go/parser"},
 		{From: "github.com/sodefrin/archi-checker/src/parser", To: "go/ast"},
-		{From: "github.com/sodefrin/archi-checker/src/parser", To: "path"},
+		{From: "github.com/sodefrin/archi-checker/src/parser", To: "path/filepath"},
 		{From: "github.com/sodefrin/archi-checker/src/parser", To: "go/token"},
 		{From: "github.com/sodefrin/archi-checker/src/parser", To: "strings"},
 	}

@@ -4,7 +4,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"path"
+	"path/filepath"
 	"strings"
 )
 
@@ -16,10 +16,10 @@ type Import struct {
 	To      string
 }
 
-func ParsePkgs(modulePath string, pkgs ...string) ([]*Import, error) {
+func ParsePkgs(modulePath string, paths ...string) ([]*Import, error) {
 	ips := []*Import{}
-	for _, pkg := range pkgs {
-		tmp, err := parsePkg(modulePath, pkg)
+	for _, path := range paths {
+		tmp, err := parsePkg(modulePath, path)
 		if err != nil {
 			return nil, err
 		}
@@ -28,10 +28,13 @@ func ParsePkgs(modulePath string, pkgs ...string) ([]*Import, error) {
 	return ips, nil
 }
 
-func parsePkg(modulePath string, pkg string) ([]*Import, error) {
-	path := path.Join(modulePath, pkg)
+func parsePkg(modulePath, path string) ([]*Import, error) {
 	fset := token.NewFileSet()
-	ast, err := parser.ParseDir(fset, pkg, nil, parser.Mode(0))
+	rel, err := filepath.Rel(modulePath, path)
+	if err != nil {
+		return nil, err
+	}
+	ast, err := parser.ParseDir(fset, rel, nil, parser.Mode(0))
 	if err != nil {
 		return nil, err
 	}
