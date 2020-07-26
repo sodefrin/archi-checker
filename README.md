@@ -33,7 +33,7 @@ $ archi-checker -uml uml/this_package.uml -pkgname github.com/sodefrin/archi-che
 
 If the we change dependency like below to apply DIP, the error wil be repoted.
 
-![normaql-archi](./uml/normal_archi.png)
+![dip-archi](./uml/dip_archi.png)
 
 ```
 archi: github.com/sodefrin/archi-checker/src/archi
