@@ -9,7 +9,7 @@ func TestMain(t *testing.T) {
 	}{
 		"this_package": {
 			haveConfig: config{
-				umlPath:    "testdata/this_package.uml",
+				umlPath:    "uml/this_package.uml",
 				modulePath: "github.com/sodefrin/archi-checker",
 				pkgs:       []string{".", "src/archi", "src/check", "src/parser"},
 			},
@@ -17,7 +17,7 @@ func TestMain(t *testing.T) {
 		},
 		"dip_this_package": {
 			haveConfig: config{
-				umlPath:    "testdata/this_package_dip.uml",
+				umlPath:    "uml/this_package_dip.uml",
 				modulePath: "github.com/sodefrin/archi-checker",
 				pkgs:       []string{".", "src/archi", "src/check", "src/parser"},
 			},
