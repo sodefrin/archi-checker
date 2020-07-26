@@ -89,6 +89,15 @@ func (lm LayerMap) Exist(pkg string) bool {
 	return false
 }
 
+func (lm LayerMap) GetLayer(pkg string) *Layer {
+	for _, l := range lm {
+		if l.Exist(pkg) {
+			return l
+		}
+	}
+	return nil
+}
+
 func (l Layer) Exist(pkg string) bool {
 	for _, p := range l.Pkgs {
 		a := strings.Split(p, "/")

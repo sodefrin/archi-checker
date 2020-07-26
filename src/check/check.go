@@ -36,7 +36,11 @@ func run(deps *archi.Dependencies, ips []*parser.Import) []*parser.Import {
 }
 
 func isTarget(deps *archi.Dependencies, ip *parser.Import) bool {
-	return deps.LayerMap.Exist(ip.From) && deps.LayerMap.Exist(ip.To)
+	if deps.LayerMap.Exist(ip.From) && deps.LayerMap.Exist(ip.To) {
+		return deps.LayerMap.GetLayer(ip.From).Name != deps.LayerMap.GetLayer(ip.To).Name
+	}
+
+	return false
 }
 
 func isValidDependency(deps *archi.Dependencies, ip *parser.Import) bool {
