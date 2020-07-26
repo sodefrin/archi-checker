@@ -22,7 +22,7 @@ const usage = "archi-checker [target pacakges]"
 func parseConfig() (config, error) {
 	cfg := config{}
 
-	flag.StringVar(&cfg.umlPath, "uml", ".archi-check.uml", "uml path")
+	flag.StringVar(&cfg.umlPath, "uml", ".archi-checker.uml", "uml path")
 
 	mod, err := ioutil.ReadFile("./go.mod")
 	if err != nil {
