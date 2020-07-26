@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -25,34 +26,37 @@ func parseConfig() (config, error) {
 	cfg.pkgs = flag.Args()
 
 	if cfg.umlPath == "" || cfg.modulePath == "" || len(cfg.pkgs) == 0 {
-		fmt.Println(usage)
-		os.Exit(1)
+		return cfg, errors.New(usage)
 	}
-	return config{}, nil
+
+	return cfg, nil
 }
 
-func run(cfg config) {
+func run(cfg config) int {
 	ret, err := check.ArchiCheck(cfg.umlPath, cfg.modulePath, cfg.pkgs...)
 	if err != nil {
-		fmt.Printf("[ERROR] %s\n", err)
+		fmt.Printf("%s\n", err)
 		fmt.Println(usage)
-		os.Exit(1)
+		return 1
 	}
 
 	for _, v := range ret {
-		fmt.Println(v.From)
-		fmt.Println(v.To)
+		fmt.Println(v.File.Name, v.From, v.To)
 	}
-	os.Exit(0)
+
+	if len(ret) > 0 {
+		return 1
+	}
+
+	return 0
 }
 
 func main() {
 	cfg, err := parseConfig()
 	if err != nil {
-		fmt.Printf("[ERROR] %s\n", err)
-		fmt.Println(usage)
+		fmt.Printf("%s\n", err)
 		os.Exit(1)
 	}
 
-	run(cfg)
+	os.Exit(run(cfg))
 }

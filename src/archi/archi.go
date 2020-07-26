@@ -93,16 +93,19 @@ func (l Layer) Exist(pkg string) bool {
 	for _, p := range l.Pkgs {
 		a := strings.Split(p, "/")
 		b := strings.Split(pkg, "/")
+		if len(a) > len(b) {
+			return false
+		}
 		for i, v := range b {
 			if len(a) == i {
 				return true
 			}
-			if v == a[i] {
-				return true
+			if v != a[i] {
+				return false
 			}
 		}
 	}
-	return false
+	return true
 }
 
 func isLayer(line string) bool {

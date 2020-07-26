@@ -96,7 +96,7 @@ func TestRun(t *testing.T) {
 			haveIps: []*parser.Import{
 				{
 					From: "a",
-					To:   "b/c",
+					To:   "c",
 				},
 			},
 			wantResults: []*parser.Import{},

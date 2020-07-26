@@ -23,19 +23,28 @@ func run(deps *archi.Dependencies, ips []*parser.Import) []*parser.Import {
 	ret := []*parser.Import{}
 
 	for _, ip := range ips {
-		if !deps.LayerMap.Exist(ip.From) || !deps.LayerMap.Exist(ip.To) {
+		if !isTarget(deps, ip) {
 			continue
 		}
-		for _, dep := range deps.Dependencies {
-			if xor(dep.From.Exist(ip.From), dep.To.Exist(ip.To)) {
-				ret = append(ret, ip)
-			}
+
+		if !isValidDependency(deps, ip) {
+			ret = append(ret, ip)
 		}
 	}
 
 	return ret
 }
 
-func xor(a, b bool) bool {
-	return (a || b) && !(a && b)
+func isTarget(deps *archi.Dependencies, ip *parser.Import) bool {
+	return deps.LayerMap.Exist(ip.From) && deps.LayerMap.Exist(ip.To)
+}
+
+func isValidDependency(deps *archi.Dependencies, ip *parser.Import) bool {
+	for _, dep := range deps.Dependencies {
+		if dep.From.Exist(ip.From) && dep.To.Exist(ip.To) {
+			return true
+		}
+	}
+
+	return false
 }
