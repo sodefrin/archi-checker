@@ -24,7 +24,6 @@ func TestParsePkgs(t *testing.T) {
 		{From: "github.com/sodefrin/archi-checker/src/parser", To: "testing"},
 		{From: "github.com/sodefrin/archi-checker/src/parser", To: "github.com/google/go-cmp/cmp"},
 		{From: "github.com/sodefrin/archi-checker/src/parser", To: "github.com/google/go-cmp/cmp/cmpopts"},
-		{From: "github.com/sodefrin/archi-checker/src/parser", To: "fmt"},
 		{From: "github.com/sodefrin/archi-checker/src/parser", To: "go/parser"},
 		{From: "github.com/sodefrin/archi-checker/src/parser", To: "go/ast"},
 		{From: "github.com/sodefrin/archi-checker/src/parser", To: "path"},
@@ -45,7 +44,7 @@ func TestParsePkgs(t *testing.T) {
 		return false
 	})
 
-	opt := cmpopts.IgnoreFields(Import{}, "File", "Import")
+	opt := cmpopts.IgnoreFields(Import{}, "FileSet", "File", "Import")
 	if diff := cmp.Diff(want, ret, sortOpt, opt); diff != "" {
 		t.Fatal(diff)
 	}

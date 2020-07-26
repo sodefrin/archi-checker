@@ -9,10 +9,11 @@ import (
 )
 
 type Import struct {
-	File   *ast.File
-	Import *ast.ImportSpec
-	From   string
-	To     string
+	FileSet *token.FileSet
+	File    *ast.File
+	Import  *ast.ImportSpec
+	From    string
+	To      string
 }
 
 func ParsePkgs(modulePath string, pkgs ...string) ([]*Import, error) {
@@ -40,10 +41,11 @@ func parsePkg(modulePath string, pkg string) ([]*Import, error) {
 		for _, file := range pkg.Files {
 			for _, ip := range file.Imports {
 				ips = append(ips, &Import{
-					File:   file,
-					Import: ip,
-					From:   path,
-					To:     strings.Trim(ip.Path.Value, "\""),
+					FileSet: fset,
+					File:    file,
+					Import:  ip,
+					From:    path,
+					To:      strings.Trim(ip.Path.Value, "\""),
 				})
 			}
 		}

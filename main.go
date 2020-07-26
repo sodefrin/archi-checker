@@ -22,7 +22,6 @@ func parseConfig() (config, error) {
 
 	flag.StringVar(&cfg.umlPath, "uml", "", "uml path")
 	flag.StringVar(&cfg.modulePath, "module", "", "repo url")
-
 	cfg.pkgs = flag.Args()
 
 	if cfg.umlPath == "" || cfg.modulePath == "" || len(cfg.pkgs) == 0 {
@@ -33,18 +32,19 @@ func parseConfig() (config, error) {
 }
 
 func run(cfg config) int {
-	ret, err := check.ArchiCheck(cfg.umlPath, cfg.modulePath, cfg.pkgs...)
+	invalidImports, err := check.ArchiCheck(cfg.umlPath, cfg.modulePath, cfg.pkgs...)
 	if err != nil {
 		fmt.Printf("%s\n", err)
 		fmt.Println(usage)
 		return 1
 	}
 
-	for _, v := range ret {
-		fmt.Println(v.File.Name, v.From, v.To)
+	for _, ip := range invalidImports {
+		importpos := ip.FileSet.Position(ip.Import.Path.ValuePos)
+		fmt.Printf("%s: cannot import %s from %s\n", importpos, ip.To, ip.From)
 	}
 
-	if len(ret) > 0 {
+	if len(invalidImports) > 0 {
 		return 1
 	}
 
