@@ -1,10 +1,10 @@
 package parser
 
 import (
-	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"path"
 	"strings"
 )
 
@@ -28,7 +28,7 @@ func ParsePkgs(modulePath string, pkgs ...string) ([]*Import, error) {
 }
 
 func parsePkg(modulePath string, pkg string) ([]*Import, error) {
-	path := fmt.Sprintf("%s/%s", modulePath, pkg)
+	path := path.Join(modulePath, pkg)
 	fset := token.NewFileSet()
 	ast, err := parser.ParseDir(fset, pkg, nil, parser.Mode(0))
 	if err != nil {
@@ -37,7 +37,6 @@ func parsePkg(modulePath string, pkg string) ([]*Import, error) {
 
 	ips := []*Import{}
 	for _, pkg := range ast {
-		fmt.Println(pkg.Name, pkg.Scope)
 		for _, file := range pkg.Files {
 			for _, ip := range file.Imports {
 				ips = append(ips, &Import{

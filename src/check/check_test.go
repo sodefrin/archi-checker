@@ -12,7 +12,7 @@ func TestRun(t *testing.T) {
 	testCases := map[string]struct {
 		haveDeps    *archi.Dependencies
 		haveIps     []*parser.Import
-		wantResults []*Result
+		wantResults []*parser.Import
 	}{
 		"normal": {
 			haveDeps: &archi.Dependencies{
@@ -41,7 +41,7 @@ func TestRun(t *testing.T) {
 					To:   "b",
 				},
 			},
-			wantResults: []*Result{},
+			wantResults: []*parser.Import{},
 		},
 		"child_pkg": {
 			haveDeps: &archi.Dependencies{
@@ -70,7 +70,7 @@ func TestRun(t *testing.T) {
 					To:   "b/c",
 				},
 			},
-			wantResults: []*Result{},
+			wantResults: []*parser.Import{},
 		},
 		"non_target_pkg": {
 			haveDeps: &archi.Dependencies{
@@ -99,7 +99,7 @@ func TestRun(t *testing.T) {
 					To:   "b/c",
 				},
 			},
-			wantResults: []*Result{},
+			wantResults: []*parser.Import{},
 		},
 		"undefined_dependency": {
 			haveDeps: &archi.Dependencies{
@@ -131,8 +131,11 @@ func TestRun(t *testing.T) {
 					To:   "c",
 				},
 			},
-			wantResults: []*Result{
-				{},
+			wantResults: []*parser.Import{
+				{
+					From: "a",
+					To:   "c",
+				},
 			},
 		},
 	}

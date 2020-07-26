@@ -5,10 +5,7 @@ import (
 	"github.com/sodefrin/archi-checker/src/parser"
 )
 
-type Result struct {
-}
-
-func ArchiCheck(umlPath, modulePath string, pkgs ...string) ([]*Result, error) {
+func ArchiCheck(umlPath, modulePath string, pkgs ...string) ([]*parser.Import, error) {
 	ips, err := parser.ParsePkgs(modulePath, pkgs...)
 	if err != nil {
 		return nil, err
@@ -22,8 +19,8 @@ func ArchiCheck(umlPath, modulePath string, pkgs ...string) ([]*Result, error) {
 	return run(deps, ips), nil
 }
 
-func run(deps *archi.Dependencies, ips []*parser.Import) []*Result {
-	ret := []*Result{}
+func run(deps *archi.Dependencies, ips []*parser.Import) []*parser.Import {
+	ret := []*parser.Import{}
 
 	for _, ip := range ips {
 		if !deps.LayerMap.Exist(ip.From) || !deps.LayerMap.Exist(ip.To) {
@@ -31,7 +28,7 @@ func run(deps *archi.Dependencies, ips []*parser.Import) []*Result {
 		}
 		for _, dep := range deps.Dependencies {
 			if xor(dep.From.Exist(ip.From), dep.To.Exist(ip.To)) {
-				ret = append(ret, &Result{})
+				ret = append(ret, ip)
 			}
 		}
 	}

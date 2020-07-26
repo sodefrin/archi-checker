@@ -27,6 +27,7 @@ func TestParsePkgs(t *testing.T) {
 		{From: "github.com/sodefrin/archi-checker/src/parser", To: "fmt"},
 		{From: "github.com/sodefrin/archi-checker/src/parser", To: "go/parser"},
 		{From: "github.com/sodefrin/archi-checker/src/parser", To: "go/ast"},
+		{From: "github.com/sodefrin/archi-checker/src/parser", To: "path"},
 		{From: "github.com/sodefrin/archi-checker/src/parser", To: "go/token"},
 		{From: "github.com/sodefrin/archi-checker/src/parser", To: "strings"},
 	}
