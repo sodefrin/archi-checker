@@ -9,17 +9,17 @@ func TestMain(t *testing.T) {
 	}{
 		"this_package": {
 			haveConfig: config{
-				umlPath:    "uml/this_package.uml",
-				modulePath: "github.com/sodefrin/archi-checker",
-				pkgs:       []string{".", "src/archi", "src/check", "src/parser"},
+				umlPath: "uml/this_package.uml",
+				pkgname: "github.com/sodefrin/archi-checker",
+				pkgs:    []string{".", "src/archi", "src/check", "src/parser"},
 			},
 			wantRet: 0,
 		},
 		"dip_this_package": {
 			haveConfig: config{
-				umlPath:    "uml/this_package_dip.uml",
-				modulePath: "github.com/sodefrin/archi-checker",
-				pkgs:       []string{".", "src/archi", "src/check", "src/parser"},
+				umlPath: "uml/this_package_dip.uml",
+				pkgname: "github.com/sodefrin/archi-checker",
+				pkgs:    []string{".", "src/archi", "src/check", "src/parser"},
 			},
 			wantRet: 1,
 		},

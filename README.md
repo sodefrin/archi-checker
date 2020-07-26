@@ -28,7 +28,7 @@ check -> parser
 We can validate this package using archi-checker command.
 
 ```
-$ archi-checker -uml testdata/this_package.uml -module github.com/sodefrin/archi-checker src/archi src/check src/parser  
+$ archi-checker -uml uml/this_package.uml -pkgname github.com/sodefrin/archi-checker src/archi src/check src/parser  
 ```
 
 If the we change dependency like below to apply DIP, the error wil be repoted.
@@ -45,7 +45,7 @@ parser -> check
 ```
 
 ```
-$ archi-checker -uml testdata/this_package_dip.uml -module github.com/sodefrin/archi-checker src/archi src/check src/parser  
+$ archi-checker -uml uml/this_package_dip.uml -pkgname github.com/sodefrin/archi-checker src/archi src/check src/parser  
 $ src/check/check_test.go:7:2: cannot import github.com/sodefrin/archi-checker/src/archi from github.com/sodefrin/archi-checker/src/check
 $ src/check/check_test.go:8:2: cannot import github.com/sodefrin/archi-checker/src/parser from github.com/sodefrin/archi-checker/src/check
 $ src/check/check.go:4:2: cannot import github.com/sodefrin/archi-checker/src/archi from github.com/sodefrin/archi-checker/src/check

@@ -10,23 +10,23 @@ import (
 )
 
 type config struct {
-	umlPath    string
-	modulePath string
-	pkgs       []string
+	umlPath string
+	pkgname string
+	pkgs    []string
 }
 
-const usage = "archi-checker -uml [path to uml] -module [repo url]"
+const usage = "archi-checker -uml [path to uml] -pkgname [package name] [target pacakges]"
 
 func parseConfig() (config, error) {
 	cfg := config{}
 
 	flag.StringVar(&cfg.umlPath, "uml", "", "uml path")
-	flag.StringVar(&cfg.modulePath, "module", "", "repo url")
+	flag.StringVar(&cfg.pkgname, "pkgname", "", "repo url")
 
 	flag.Parse()
 	cfg.pkgs = flag.Args()
 
-	if cfg.umlPath == "" || cfg.modulePath == "" || len(cfg.pkgs) == 0 {
+	if cfg.umlPath == "" || cfg.pkgname == "" || len(cfg.pkgs) == 0 {
 		fmt.Println(cfg)
 		return cfg, errors.New(usage)
 	}
@@ -35,7 +35,7 @@ func parseConfig() (config, error) {
 }
 
 func run(cfg config) int {
-	invalidImports, err := check.ArchiCheck(cfg.umlPath, cfg.modulePath, cfg.pkgs...)
+	invalidImports, err := check.ArchiCheck(cfg.umlPath, cfg.pkgname, cfg.pkgs...)
 	if err != nil {
 		fmt.Printf("%s\n", err)
 		fmt.Println(usage)
