@@ -22,9 +22,12 @@ func parseConfig() (config, error) {
 
 	flag.StringVar(&cfg.umlPath, "uml", "", "uml path")
 	flag.StringVar(&cfg.modulePath, "module", "", "repo url")
+
+	flag.Parse()
 	cfg.pkgs = flag.Args()
 
 	if cfg.umlPath == "" || cfg.modulePath == "" || len(cfg.pkgs) == 0 {
+		fmt.Println(cfg)
 		return cfg, errors.New(usage)
 	}
 
