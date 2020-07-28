@@ -100,21 +100,11 @@ func (lm LayerMap) GetLayer(pkg string) *Layer {
 
 func (l Layer) Exist(pkg string) bool {
 	for _, p := range l.Pkgs {
-		a := strings.Split(p, "/")
-		b := strings.Split(pkg, "/")
-		if len(a) > len(b) {
-			return false
-		}
-		for i, v := range b {
-			if len(a) == i {
-				return true
-			}
-			if v != a[i] {
-				return false
-			}
+		if strings.HasPrefix(pkg, p) {
+			return true
 		}
 	}
-	return true
+	return false
 }
 
 func isLayer(line string) bool {
