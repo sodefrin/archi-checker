@@ -8,140 +8,153 @@ import (
 
 func TestCheck(t *testing.T) {
 	testCases := map[string]struct {
-		haveDeps    *Dependencies
-		haveIps     []*Import
-		wantResults []*Import
+		haveDeps           *Dependencies
+		haveIps            []*Import
+		wantInvalidImports []*Import
+		wantUnknownImports []*Import
 	}{
 		"normal": {
 			haveDeps: &Dependencies{
 				LayerMap: LayerMap{
 					"a": &Layer{
-						Name: "a", Pkgs: []string{"a"},
+						Name: "a", Pkgs: []string{"xxx.xxx/a"},
 					},
 					"b": &Layer{
-						Name: "b", Pkgs: []string{"b"},
+						Name: "b", Pkgs: []string{"xxx.xxx/b"},
 					},
 				},
 				Dependencies: []*Dependency{
 					{
 						From: &Layer{
-							Name: "a", Pkgs: []string{"a"},
+							Name: "a", Pkgs: []string{"xxx.xxx/a"},
 						},
 						To: &Layer{
-							Name: "a", Pkgs: []string{"b"},
+							Name: "a", Pkgs: []string{"xxx.xxx/b"},
 						},
 					},
 				},
 			},
 			haveIps: []*Import{
 				{
-					From: "a",
-					To:   "b",
+					From: "xxx.xxx/a",
+					To:   "xxx.xxx/b",
 				},
 			},
-			wantResults: []*Import{},
+			wantInvalidImports: []*Import{},
+			wantUnknownImports: []*Import{},
 		},
 		"child_pkg": {
 			haveDeps: &Dependencies{
 				LayerMap: LayerMap{
 					"a": &Layer{
-						Name: "a", Pkgs: []string{"a"},
+						Name: "a", Pkgs: []string{"xxx.xxx/a"},
 					},
 					"b": &Layer{
-						Name: "b", Pkgs: []string{"b"},
+						Name: "b", Pkgs: []string{"xxx.xxx/b"},
 					},
 				},
 				Dependencies: []*Dependency{
 					{
 						From: &Layer{
-							Name: "a", Pkgs: []string{"a"},
+							Name: "a", Pkgs: []string{"xxx.xxx/a"},
 						},
 						To: &Layer{
-							Name: "b", Pkgs: []string{"b"},
+							Name: "b", Pkgs: []string{"xxx.xxx/b"},
 						},
 					},
 				},
 			},
 			haveIps: []*Import{
 				{
-					From: "a",
-					To:   "b/c",
+					From: "xxx.xxx/a",
+					To:   "xxx.xxx/b/c",
 				},
 			},
-			wantResults: []*Import{},
+			wantInvalidImports: []*Import{},
+			wantUnknownImports: []*Import{},
 		},
-		"non_target_pkg": {
+		"unknown": {
 			haveDeps: &Dependencies{
 				LayerMap: LayerMap{
 					"a": &Layer{
-						Name: "a", Pkgs: []string{"a"},
+						Name: "a", Pkgs: []string{"xxx.xxx/a"},
 					},
 					"b": &Layer{
-						Name: "b", Pkgs: []string{"b"},
+						Name: "b", Pkgs: []string{"xxx.xxx/b"},
 					},
 				},
 				Dependencies: []*Dependency{
 					{
 						From: &Layer{
-							Name: "a", Pkgs: []string{"a"},
+							Name: "a", Pkgs: []string{"xxx.xxx/a"},
 						},
 						To: &Layer{
-							Name: "b", Pkgs: []string{"c"},
+							Name: "b", Pkgs: []string{"xxx.xxx/c"},
 						},
 					},
 				},
 			},
 			haveIps: []*Import{
 				{
-					From: "a",
-					To:   "c",
+					From: "xxx.xxx/a",
+					To:   "xxx.xxx/c",
 				},
 			},
-			wantResults: []*Import{},
+			wantInvalidImports: []*Import{},
+			wantUnknownImports: []*Import{
+				{
+					From: "xxx.xxx/a",
+					To:   "xxx.xxx/c",
+				},
+			},
 		},
-		"undefined_dependency": {
+		"invalid": {
 			haveDeps: &Dependencies{
 				LayerMap: LayerMap{
 					"a": &Layer{
-						Name: "a", Pkgs: []string{"a"},
+						Name: "a", Pkgs: []string{"xxx.xxx/a"},
 					},
 					"b": &Layer{
-						Name: "b", Pkgs: []string{"b"},
+						Name: "b", Pkgs: []string{"xxx.xxx/b"},
 					},
 					"c": &Layer{
-						Name: "c", Pkgs: []string{"c"},
+						Name: "c", Pkgs: []string{"xxx.xxx/c"},
 					},
 				},
 				Dependencies: []*Dependency{
 					{
 						From: &Layer{
-							Name: "a", Pkgs: []string{"a"},
+							Name: "a", Pkgs: []string{"xxx.xxx/a"},
 						},
 						To: &Layer{
-							Name: "b", Pkgs: []string{"b"},
+							Name: "b", Pkgs: []string{"xxx.xxx/b"},
 						},
 					},
 				},
 			},
 			haveIps: []*Import{
 				{
-					From: "a",
-					To:   "c",
+					From: "xxx.xxx/a",
+					To:   "xxx.xxx/c",
 				},
 			},
-			wantResults: []*Import{
+			wantInvalidImports: []*Import{
 				{
-					From: "a",
-					To:   "c",
+					From: "xxx.xxx/a",
+					To:   "xxx.xxx/c",
 				},
 			},
+			wantUnknownImports: []*Import{},
 		},
 	}
 
 	for k, v := range testCases {
 		t.Run(k, func(t *testing.T) {
-			results := check(v.haveDeps, v.haveIps)
-			if diff := cmp.Diff(v.wantResults, results); diff != "" {
+			invalids, unknowns := check(v.haveDeps, v.haveIps)
+			if diff := cmp.Diff(v.wantInvalidImports, invalids); diff != "" {
+				t.Fatal(diff)
+			}
+			if diff := cmp.Diff(v.wantUnknownImports, unknowns); diff != "" {
 				t.Fatal(diff)
 			}
 		})
