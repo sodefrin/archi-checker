@@ -7,3 +7,7 @@ build:
 .PHONY: test
 test:
 	go test -v $(PACKAGES)
+
+.PHONY: lint
+lint:
+	golangci-lint run ./...
