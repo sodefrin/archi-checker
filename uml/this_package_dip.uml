@@ -1,6 +1,0 @@
-archi: github.com/sodefrin/archi-checker/src/archi
-check: github.com/sodefrin/archi-checker/src/check
-parser: github.com/sodefrin/archi-checker/src/parser
-
-archi -> check
-parser -> check

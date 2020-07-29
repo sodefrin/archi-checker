@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/sodefrin/archi-checker/src/check"
 	"golang.org/x/mod/modfile"
 )
 
@@ -93,9 +92,20 @@ func run() int {
 		return exitError
 	}
 
-	invalidImports, err := check.ArchiCheck(umlPath, pkgName, pkgs...)
+	ips, err := ParsePkgs(pkgName, pkgs...)
 	if err != nil {
-		fmt.Printf("[ERROR] %s\n%s\n", err, usage)
+		fmt.Printf("[ERROR] Failed to parse packages; %s\n", err)
+		return exitError
+	}
+
+	deps, err := ReadArchiFromUML(umlPath)
+	if err != nil {
+		fmt.Printf("[ERROR] Failed to read uml; %s\n", err)
+		return exitError
+	}
+
+	invalidImports := check(deps, ips)
+	if err != nil {
 		return exitError
 	}
 
