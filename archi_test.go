@@ -1,4 +1,4 @@
-package archi
+package main
 
 import (
 	"testing"

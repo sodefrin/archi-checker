@@ -1,137 +1,135 @@
-package check
+package main
 
 import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/sodefrin/archi-checker/src/archi"
-	"github.com/sodefrin/archi-checker/src/parser"
 )
 
-func TestRun(t *testing.T) {
+func TestCheck(t *testing.T) {
 	testCases := map[string]struct {
-		haveDeps    *archi.Dependencies
-		haveIps     []*parser.Import
-		wantResults []*parser.Import
+		haveDeps    *Dependencies
+		haveIps     []*Import
+		wantResults []*Import
 	}{
 		"normal": {
-			haveDeps: &archi.Dependencies{
-				LayerMap: archi.LayerMap{
-					"a": &archi.Layer{
+			haveDeps: &Dependencies{
+				LayerMap: LayerMap{
+					"a": &Layer{
 						Name: "a", Pkgs: []string{"a"},
 					},
-					"b": &archi.Layer{
+					"b": &Layer{
 						Name: "b", Pkgs: []string{"b"},
 					},
 				},
-				Dependencies: []*archi.Dependency{
+				Dependencies: []*Dependency{
 					{
-						From: &archi.Layer{
+						From: &Layer{
 							Name: "a", Pkgs: []string{"a"},
 						},
-						To: &archi.Layer{
+						To: &Layer{
 							Name: "a", Pkgs: []string{"b"},
 						},
 					},
 				},
 			},
-			haveIps: []*parser.Import{
+			haveIps: []*Import{
 				{
 					From: "a",
 					To:   "b",
 				},
 			},
-			wantResults: []*parser.Import{},
+			wantResults: []*Import{},
 		},
 		"child_pkg": {
-			haveDeps: &archi.Dependencies{
-				LayerMap: archi.LayerMap{
-					"a": &archi.Layer{
+			haveDeps: &Dependencies{
+				LayerMap: LayerMap{
+					"a": &Layer{
 						Name: "a", Pkgs: []string{"a"},
 					},
-					"b": &archi.Layer{
+					"b": &Layer{
 						Name: "b", Pkgs: []string{"b"},
 					},
 				},
-				Dependencies: []*archi.Dependency{
+				Dependencies: []*Dependency{
 					{
-						From: &archi.Layer{
+						From: &Layer{
 							Name: "a", Pkgs: []string{"a"},
 						},
-						To: &archi.Layer{
+						To: &Layer{
 							Name: "b", Pkgs: []string{"b"},
 						},
 					},
 				},
 			},
-			haveIps: []*parser.Import{
+			haveIps: []*Import{
 				{
 					From: "a",
 					To:   "b/c",
 				},
 			},
-			wantResults: []*parser.Import{},
+			wantResults: []*Import{},
 		},
 		"non_target_pkg": {
-			haveDeps: &archi.Dependencies{
-				LayerMap: archi.LayerMap{
-					"a": &archi.Layer{
+			haveDeps: &Dependencies{
+				LayerMap: LayerMap{
+					"a": &Layer{
 						Name: "a", Pkgs: []string{"a"},
 					},
-					"b": &archi.Layer{
+					"b": &Layer{
 						Name: "b", Pkgs: []string{"b"},
 					},
 				},
-				Dependencies: []*archi.Dependency{
+				Dependencies: []*Dependency{
 					{
-						From: &archi.Layer{
+						From: &Layer{
 							Name: "a", Pkgs: []string{"a"},
 						},
-						To: &archi.Layer{
+						To: &Layer{
 							Name: "b", Pkgs: []string{"c"},
 						},
 					},
 				},
 			},
-			haveIps: []*parser.Import{
+			haveIps: []*Import{
 				{
 					From: "a",
 					To:   "c",
 				},
 			},
-			wantResults: []*parser.Import{},
+			wantResults: []*Import{},
 		},
 		"undefined_dependency": {
-			haveDeps: &archi.Dependencies{
-				LayerMap: archi.LayerMap{
-					"a": &archi.Layer{
+			haveDeps: &Dependencies{
+				LayerMap: LayerMap{
+					"a": &Layer{
 						Name: "a", Pkgs: []string{"a"},
 					},
-					"b": &archi.Layer{
+					"b": &Layer{
 						Name: "b", Pkgs: []string{"b"},
 					},
-					"c": &archi.Layer{
+					"c": &Layer{
 						Name: "c", Pkgs: []string{"c"},
 					},
 				},
-				Dependencies: []*archi.Dependency{
+				Dependencies: []*Dependency{
 					{
-						From: &archi.Layer{
+						From: &Layer{
 							Name: "a", Pkgs: []string{"a"},
 						},
-						To: &archi.Layer{
+						To: &Layer{
 							Name: "b", Pkgs: []string{"b"},
 						},
 					},
 				},
 			},
-			haveIps: []*parser.Import{
+			haveIps: []*Import{
 				{
 					From: "a",
 					To:   "c",
 				},
 			},
-			wantResults: []*parser.Import{
+			wantResults: []*Import{
 				{
 					From: "a",
 					To:   "c",
@@ -142,7 +140,7 @@ func TestRun(t *testing.T) {
 
 	for k, v := range testCases {
 		t.Run(k, func(t *testing.T) {
-			results := run(v.haveDeps, v.haveIps)
+			results := check(v.haveDeps, v.haveIps)
 			if diff := cmp.Diff(v.wantResults, results); diff != "" {
 				t.Fatal(diff)
 			}
