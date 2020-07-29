@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -11,62 +10,106 @@ import (
 	"golang.org/x/mod/modfile"
 )
 
-type config struct {
-	umlPath string
-	pkgname string
-	pkgs    []string
-}
+const Version = ""
 
-const usage = "archi-checker [target pacakges]"
+const usage = `Usage: archi-checker [options...] [pkgs...]
 
-func parseConfig() (config, error) {
-	cfg := config{}
+Options: 
+-version, -v
+  Print version and exit.
 
-	flag.StringVar(&cfg.umlPath, "uml", ".archi-checker.uml", "uml path")
+-help, -h
+  Show this usage.
 
-	mod, err := ioutil.ReadFile("./go.mod")
-	if err != nil {
-		return cfg, err
-	}
+-strict, -s
+  Fail if not defined dependency is found.
+
+-uml, -u
+  Uml file path. By default, .archi-checker.yml.
+
+-package, -p
+  Package path of your project, By default use gomodule path.
+`
+
+const (
+	exitOK    = 0
+	exitError = 1
+)
+
+func run() int {
+	var (
+		version bool
+		help    bool
+
+		strict  bool
+		umlPath string
+		pkgName string
+	)
+
+	flag.BoolVar(&version, "version", false, "")
+	flag.BoolVar(&version, "v", false, "")
+
+	flag.BoolVar(&help, "help", false, "")
+	flag.BoolVar(&help, "h", false, "")
+
+	flag.BoolVar(&strict, "strict", false, "")
+	flag.BoolVar(&strict, "s", false, "")
+
+	flag.StringVar(&umlPath, "uml", ".archi-checker.uml", "")
+	flag.StringVar(&umlPath, "u", ".archi-checker.uml", "")
+
+	flag.StringVar(&pkgName, "package", "", "")
+	flag.StringVar(&pkgName, "p", "", "")
 
 	flag.Parse()
-	cfg.pkgs = flag.Args()
-	cfg.pkgname = modfile.ModulePath(mod)
 
-	if cfg.umlPath == "" || cfg.pkgname == "" || len(cfg.pkgs) == 0 {
-		fmt.Println(cfg)
-		return cfg, errors.New(usage)
+	if version {
+		if Version == "" {
+			fmt.Println("Unknown version")
+		} else {
+			fmt.Println(Version)
+		}
+		return exitError
 	}
 
-	return cfg, nil
-}
-
-func run(cfg config) int {
-	invalidImports, err := check.ArchiCheck(cfg.umlPath, cfg.pkgname, cfg.pkgs...)
-	if err != nil {
-		fmt.Printf("%s\n", err)
+	if help {
 		fmt.Println(usage)
-		return 1
+		return exitError
 	}
 
-	for _, ip := range invalidImports {
-		importpos := ip.FileSet.Position(ip.Import.Path.ValuePos)
-		fmt.Printf("%s: cannot import %s from %s\n", importpos, ip.To, ip.From)
+	if pkgName == "" {
+		mod, err := ioutil.ReadFile("./go.mod")
+		if err != nil {
+			fmt.Printf("Please specify package path. By default, read package path from go.mod; %s\n", err)
+			return exitError
+		}
+		pkgName = modfile.ModulePath(mod)
+	}
+
+	pkgs := flag.Args()
+
+	if len(pkgs) == 0 {
+		fmt.Println("Please specify packages.")
+		return exitError
+	}
+
+	invalidImports, err := check.ArchiCheck(umlPath, pkgName, pkgs...)
+	if err != nil {
+		fmt.Printf("[ERROR] %s\n%s\n", err, usage)
+		return exitError
 	}
 
 	if len(invalidImports) > 0 {
-		return 1
+		for _, ip := range invalidImports {
+			importpos := ip.FileSet.Position(ip.Import.Path.ValuePos)
+			fmt.Printf("%s: cannot import %s from %s\n", importpos, ip.To, ip.From)
+		}
+		return exitError
 	}
 
-	return 0
+	return exitOK
 }
 
 func main() {
-	cfg, err := parseConfig()
-	if err != nil {
-		fmt.Printf("%s\n", err)
-		os.Exit(1)
-	}
-
-	os.Exit(run(cfg))
+	os.Exit(run())
 }
