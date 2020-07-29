@@ -20,7 +20,10 @@ type Architecture struct {
 
 func (a *Architecture) GetLayer(pkg string) (string, bool) {
 	for p, l := range a.Packages {
-		if strings.HasPrefix(pkg, p) {
+		if pkg == p {
+			return l, true
+		}
+		if strings.HasPrefix(pkg, p+"/") {
 			return l, true
 		}
 	}
