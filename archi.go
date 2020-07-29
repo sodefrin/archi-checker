@@ -33,10 +33,7 @@ func (a *Architecture) Contain(ip *Import) bool {
 		return false
 	}
 	_, ok = a.GetLayer(ip.To)
-	if !ok {
-		return false
-	}
-	return true
+	return ok
 }
 
 func (a *Architecture) Valid(ip *Import) bool {
