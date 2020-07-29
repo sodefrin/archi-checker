@@ -49,6 +49,10 @@ func (a *Architecture) Valid(ip *Import) bool {
 		return false
 	}
 
+	if fromLayer == toLayer {
+		return true
+	}
+
 	for _, dep := range a.Dependencies {
 		if fromLayer == dep.FromLayer && toLayer == dep.ToLayer {
 			return true
