@@ -104,16 +104,24 @@ func run() int {
 		return exitError
 	}
 
-	invalidImports := check(deps, ips)
+	invalidImports, unknownImports := check(deps, ips)
 	if err != nil {
 		return exitError
 	}
 
-	if len(invalidImports) > 0 {
-		for _, ip := range invalidImports {
+	for _, ip := range invalidImports {
+		importpos := ip.FileSet.Position(ip.Import.Path.ValuePos)
+		fmt.Printf("%s: cannot import %s from %s\n", importpos, ip.To, ip.From)
+	}
+
+	if strict {
+		for _, ip := range unknownImports {
 			importpos := ip.FileSet.Position(ip.Import.Path.ValuePos)
-			fmt.Printf("%s: cannot import %s from %s\n", importpos, ip.To, ip.From)
+			fmt.Printf("%s: unknown package (%s) is imported\n", importpos, ip.To)
 		}
+	}
+
+	if len(invalidImports) > 0 || len(unknownImports) > 0 && strict {
 		return exitError
 	}
 

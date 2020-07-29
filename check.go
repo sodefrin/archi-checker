@@ -1,19 +1,25 @@
 package main
 
-func check(deps *Dependencies, ips []*Import) []*Import {
-	ret := []*Import{}
+import "strings"
+
+func check(deps *Dependencies, ips []*Import) ([]*Import, []*Import) {
+	errImport := []*Import{}
+	unknownImport := []*Import{}
 
 	for _, ip := range ips {
 		if !isTarget(deps, ip) {
+			if !isOfficialPkg(ip.To) {
+				unknownImport = append(unknownImport, ip)
+			}
 			continue
 		}
 
 		if !isValidDependency(deps, ip) {
-			ret = append(ret, ip)
+			errImport = append(errImport, ip)
 		}
 	}
 
-	return ret
+	return errImport, unknownImport
 }
 
 func isTarget(deps *Dependencies, ip *Import) bool {
@@ -32,4 +38,8 @@ func isValidDependency(deps *Dependencies, ip *Import) bool {
 	}
 
 	return false
+}
+
+func isOfficialPkg(pkg string) bool {
+	return !strings.ContainsRune(pkg, '.')
 }
