@@ -1,5 +1,7 @@
 # archi-checker
 
+![Go](https://github.com/sodefrin/archi-checker/workflows/Go/badge.svg?branch=master)
+
 archi-checker is dependency vaidation tool. 
 
 ## Install
