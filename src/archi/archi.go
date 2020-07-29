@@ -46,11 +46,15 @@ func ReadArchiFromUML(umlPath string) (*Dependencies, error) {
 
 		line := string(b)
 		if isLayer(line) {
-			layerMap.updateLayerMap(line)
+			if err := layerMap.updateLayerMap(line); err != nil {
+				return nil, err
+			}
 		}
 
 		if isDependency(line) {
-			dependencies.updateDependencies(line)
+			if err := dependencies.updateDependencies(line); err != nil {
+				return nil, err
+			}
 		}
 	}
 
