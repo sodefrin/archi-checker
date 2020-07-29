@@ -98,7 +98,7 @@ func run() int {
 		return exitError
 	}
 
-	deps, err := ReadArchiFromUML(umlPath)
+	deps, err := ReadArchitectureFromUML(umlPath)
 	if err != nil {
 		fmt.Printf("[ERROR] Failed to read uml; %s\n", err)
 		return exitError

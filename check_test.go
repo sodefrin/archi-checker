@@ -8,29 +8,21 @@ import (
 
 func TestCheck(t *testing.T) {
 	testCases := map[string]struct {
-		haveDeps           *Dependencies
+		haveArchi          *Architecture
 		haveIps            []*Import
 		wantInvalidImports []*Import
 		wantUnknownImports []*Import
 	}{
 		"normal": {
-			haveDeps: &Dependencies{
-				LayerMap: LayerMap{
-					"a": &Layer{
-						Name: "a", Pkgs: []string{"xxx.xxx/a"},
-					},
-					"b": &Layer{
-						Name: "b", Pkgs: []string{"xxx.xxx/b"},
-					},
+			haveArchi: &Architecture{
+				Packages: map[string]string{
+					"xxx.xxx/a": "a",
+					"xxx.xxx/b": "b",
 				},
 				Dependencies: []*Dependency{
 					{
-						From: &Layer{
-							Name: "a", Pkgs: []string{"xxx.xxx/a"},
-						},
-						To: &Layer{
-							Name: "a", Pkgs: []string{"xxx.xxx/b"},
-						},
+						FromLayer: "a",
+						ToLayer:   "b",
 					},
 				},
 			},
@@ -44,23 +36,15 @@ func TestCheck(t *testing.T) {
 			wantUnknownImports: []*Import{},
 		},
 		"child_pkg": {
-			haveDeps: &Dependencies{
-				LayerMap: LayerMap{
-					"a": &Layer{
-						Name: "a", Pkgs: []string{"xxx.xxx/a"},
-					},
-					"b": &Layer{
-						Name: "b", Pkgs: []string{"xxx.xxx/b"},
-					},
+			haveArchi: &Architecture{
+				Packages: map[string]string{
+					"xxx.xxx/a": "a",
+					"xxx.xxx/b": "b",
 				},
 				Dependencies: []*Dependency{
 					{
-						From: &Layer{
-							Name: "a", Pkgs: []string{"xxx.xxx/a"},
-						},
-						To: &Layer{
-							Name: "b", Pkgs: []string{"xxx.xxx/b"},
-						},
+						FromLayer: "a",
+						ToLayer:   "b",
 					},
 				},
 			},
@@ -74,23 +58,15 @@ func TestCheck(t *testing.T) {
 			wantUnknownImports: []*Import{},
 		},
 		"unknown": {
-			haveDeps: &Dependencies{
-				LayerMap: LayerMap{
-					"a": &Layer{
-						Name: "a", Pkgs: []string{"xxx.xxx/a"},
-					},
-					"b": &Layer{
-						Name: "b", Pkgs: []string{"xxx.xxx/b"},
-					},
+			haveArchi: &Architecture{
+				Packages: map[string]string{
+					"xxx.xxx/a": "a",
+					"xxx.xxx/b": "b",
 				},
 				Dependencies: []*Dependency{
 					{
-						From: &Layer{
-							Name: "a", Pkgs: []string{"xxx.xxx/a"},
-						},
-						To: &Layer{
-							Name: "b", Pkgs: []string{"xxx.xxx/c"},
-						},
+						FromLayer: "a",
+						ToLayer:   "b",
 					},
 				},
 			},
@@ -98,6 +74,10 @@ func TestCheck(t *testing.T) {
 				{
 					From: "xxx.xxx/a",
 					To:   "xxx.xxx/c",
+				},
+				{
+					From: "xxx.xxx/a",
+					To:   "fmt",
 				},
 			},
 			wantInvalidImports: []*Import{},
@@ -109,39 +89,28 @@ func TestCheck(t *testing.T) {
 			},
 		},
 		"invalid": {
-			haveDeps: &Dependencies{
-				LayerMap: LayerMap{
-					"a": &Layer{
-						Name: "a", Pkgs: []string{"xxx.xxx/a"},
-					},
-					"b": &Layer{
-						Name: "b", Pkgs: []string{"xxx.xxx/b"},
-					},
-					"c": &Layer{
-						Name: "c", Pkgs: []string{"xxx.xxx/c"},
-					},
+			haveArchi: &Architecture{
+				Packages: map[string]string{
+					"xxx.xxx/a": "a",
+					"xxx.xxx/b": "b",
 				},
 				Dependencies: []*Dependency{
 					{
-						From: &Layer{
-							Name: "a", Pkgs: []string{"xxx.xxx/a"},
-						},
-						To: &Layer{
-							Name: "b", Pkgs: []string{"xxx.xxx/b"},
-						},
+						FromLayer: "a",
+						ToLayer:   "b",
 					},
 				},
 			},
 			haveIps: []*Import{
 				{
-					From: "xxx.xxx/a",
-					To:   "xxx.xxx/c",
+					From: "xxx.xxx/b",
+					To:   "xxx.xxx/a",
 				},
 			},
 			wantInvalidImports: []*Import{
 				{
-					From: "xxx.xxx/a",
-					To:   "xxx.xxx/c",
+					From: "xxx.xxx/b",
+					To:   "xxx.xxx/a",
 				},
 			},
 			wantUnknownImports: []*Import{},
@@ -150,7 +119,7 @@ func TestCheck(t *testing.T) {
 
 	for k, v := range testCases {
 		t.Run(k, func(t *testing.T) {
-			invalids, unknowns := check(v.haveDeps, v.haveIps)
+			invalids, unknowns := check(v.haveArchi, v.haveIps)
 			if diff := cmp.Diff(v.wantInvalidImports, invalids); diff != "" {
 				t.Fatal(diff)
 			}

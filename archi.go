@@ -8,31 +8,63 @@ import (
 	"strings"
 )
 
-type LayerMap map[string]*Layer
-
-type Layer struct {
-	Name string
-	Pkgs []string
+type Dependency struct {
+	FromLayer string
+	ToLayer   string
 }
 
-type Dependencies struct {
-	LayerMap     LayerMap
+type Architecture struct {
+	Packages     map[string]string
 	Dependencies []*Dependency
 }
 
-type Dependency struct {
-	From *Layer
-	To   *Layer
+func (a *Architecture) GetLayer(pkg string) (string, bool) {
+	for p, l := range a.Packages {
+		if strings.HasPrefix(pkg, p) {
+			return l, true
+		}
+	}
+	return "", false
 }
 
-func ReadArchiFromUML(umlPath string) (*Dependencies, error) {
+func (a *Architecture) Contain(ip *Import) bool {
+	_, ok := a.GetLayer(ip.From)
+	if !ok {
+		return false
+	}
+	_, ok = a.GetLayer(ip.To)
+	if !ok {
+		return false
+	}
+	return true
+}
+
+func (a *Architecture) Valid(ip *Import) bool {
+	fromLayer, ok := a.GetLayer(ip.From)
+	if !ok {
+		return false
+	}
+	toLayer, ok := a.GetLayer(ip.To)
+	if !ok {
+		return false
+	}
+
+	for _, dep := range a.Dependencies {
+		if fromLayer == dep.FromLayer && toLayer == dep.ToLayer {
+			return true
+		}
+	}
+	return false
+}
+
+func ReadArchitectureFromUML(umlPath string) (*Architecture, error) {
 	f, err := os.Open(umlPath)
 	if err != nil {
 		return nil, err
 	}
 
-	layerMap := NewLayerMap()
-	dependencies := NewDependencies(layerMap)
+	pkgs := map[string]string{}
+	deps := []*Dependency{}
 
 	r := bufio.NewReader(f)
 	for {
@@ -46,106 +78,50 @@ func ReadArchiFromUML(umlPath string) (*Dependencies, error) {
 
 		line := string(b)
 		if isLayer(line) {
-			if err := layerMap.updateLayerMap(line); err != nil {
+			l, p, err := parseLayer(line)
+			if err != nil {
 				return nil, err
 			}
+			pkgs[p] = l
 		}
 
 		if isDependency(line) {
-			if err := dependencies.updateDependencies(line); err != nil {
+			d, err := parseDependency(line)
+			if err != nil {
 				return nil, err
 			}
+			deps = append(deps, d)
 		}
 	}
 
-	return dependencies, nil
-}
-
-func NewLayerMap() LayerMap {
-	return map[string]*Layer{}
-}
-
-func (lm LayerMap) updateLayerMap(line string) error {
-	ss := strings.Split(line, ":")
-	if len(ss) != 2 {
-		return fmt.Errorf("invalid layer description: %s", line)
-	}
-
-	ss0 := strings.TrimSpace(ss[0])
-	ss1 := strings.TrimSpace(ss[1])
-
-	if layer, ok := lm[ss0]; !ok {
-		lm[ss0] = &Layer{Name: ss0, Pkgs: []string{ss1}}
-	} else {
-		layer.Pkgs = append(layer.Pkgs, ss1)
-	}
-
-	return nil
-}
-
-func (lm LayerMap) Exist(pkg string) bool {
-	for _, l := range lm {
-		if l.Exist(pkg) {
-			return true
-		}
-	}
-
-	return false
-}
-
-func (lm LayerMap) GetLayer(pkg string) *Layer {
-	for _, l := range lm {
-		if l.Exist(pkg) {
-			return l
-		}
-	}
-	return nil
-}
-
-func (l Layer) Exist(pkg string) bool {
-	for _, p := range l.Pkgs {
-		if strings.HasPrefix(pkg, p) {
-			return true
-		}
-	}
-	return false
+	return &Architecture{
+		Packages:     pkgs,
+		Dependencies: deps,
+	}, nil
 }
 
 func isLayer(line string) bool {
 	return strings.Contains(line, ":")
 }
 
+func parseLayer(line string) (string, string, error) {
+	ss := strings.Split(line, ":")
+	if len(ss) != 2 {
+		return "", "", fmt.Errorf("invalid layer description: %s", line)
+	}
+
+	return strings.TrimSpace(ss[0]), strings.TrimSpace(ss[1]), nil
+}
+
 func isDependency(line string) bool {
 	return strings.Contains(line, "->")
 }
 
-func NewDependencies(l LayerMap) *Dependencies {
-	return &Dependencies{
-		LayerMap:     l,
-		Dependencies: []*Dependency{},
-	}
-}
-
-func (d *Dependencies) updateDependencies(line string) error {
+func parseDependency(line string) (*Dependency, error) {
 	ss := strings.Split(line, "->")
 	if len(ss) != 2 {
-		return fmt.Errorf("invalid dependency description: %s", line)
+		return nil, fmt.Errorf("invalid dependency description: %s", line)
 	}
 
-	ss0 := strings.TrimSpace(ss[0])
-	ss1 := strings.TrimSpace(ss[1])
-
-	if _, ok := d.LayerMap[ss0]; !ok {
-		return fmt.Errorf("unknown layer: %s", ss0)
-	}
-	if _, ok := d.LayerMap[ss1]; !ok {
-		return fmt.Errorf("unknown layer: %s", ss1)
-	}
-
-	d.Dependencies = append(d.Dependencies, &Dependency{
-		From: d.LayerMap[ss0],
-		To:   d.LayerMap[ss1],
-	})
-
-	return nil
+	return &Dependency{FromLayer: strings.TrimSpace(ss[0]), ToLayer: strings.TrimSpace(ss[1])}, nil
 }

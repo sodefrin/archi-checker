@@ -6,86 +6,49 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestReadArcguFromUML(t *testing.T) {
-	ret, err := ReadArchiFromUML("testdata/sample.uml")
+func TestReadArchitectureFromUML(t *testing.T) {
+	ret, err := ReadArchitectureFromUML("testdata/sample.uml")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	want := &Dependencies{
-		LayerMap: LayerMap{
-			"domains": &Layer{
-				Name: "domains", Pkgs: []string{"github.com/sodefrin/test/src/domains"},
-			},
-			"infrastructures": &Layer{
-				Name: "infrastructures", Pkgs: []string{"github.com/sodefrin/test/src/infrastructures/proto", "google.golang.org/grpc"},
-			},
-			"interfaces": &Layer{
-				Name: "interfaces", Pkgs: []string{"github.com/sodefrin/test/src/interfaces"},
-			},
-			"usecases": &Layer{
-				Name: "usecases", Pkgs: []string{"github.com/sodefrin/test/src/usecases"},
-			},
-			"utils": &Layer{
-				Name: "utils", Pkgs: []string{"log"},
-			},
+	want := &Architecture{
+		Packages: map[string]string{
+			"github.com/sodefrin/test/src/domains":               "domains",
+			"github.com/sodefrin/test/src/infrastructures/proto": "infrastructures",
+			"google.golang.org/grpc":                             "infrastructures",
+			"github.com/sodefrin/test/src/interfaces":            "interfaces",
+			"github.com/sodefrin/test/src/usecases":              "usecases",
+			"log":                                                "utils",
 		},
 		Dependencies: []*Dependency{
 			{
-				From: &Layer{
-					Name: "usecases", Pkgs: []string{"github.com/sodefrin/test/src/usecases"},
-				},
-				To: &Layer{
-					Name: "domains", Pkgs: []string{"github.com/sodefrin/test/src/domains"},
-				},
+				FromLayer: "usecases",
+				ToLayer:   "domains",
 			},
 			{
-				From: &Layer{
-					Name: "interfaces", Pkgs: []string{"github.com/sodefrin/test/src/interfaces"},
-				},
-				To: &Layer{
-					Name: "usecases", Pkgs: []string{"github.com/sodefrin/test/src/usecases"},
-				},
+				FromLayer: "interfaces",
+				ToLayer:   "usecases",
 			},
 			{
-				From: &Layer{
-					Name: "interfaces", Pkgs: []string{"github.com/sodefrin/test/src/interfaces"},
-				},
-				To: &Layer{
-					Name: "domains", Pkgs: []string{"github.com/sodefrin/test/src/domains"},
-				},
+				FromLayer: "interfaces",
+				ToLayer:   "domains",
 			},
 			{
-				From: &Layer{
-					Name: "interfaces", Pkgs: []string{"github.com/sodefrin/test/src/interfaces"},
-				},
-				To: &Layer{
-					Name: "infrastructures", Pkgs: []string{"github.com/sodefrin/test/src/infrastructures/proto", "google.golang.org/grpc"},
-				},
+				FromLayer: "interfaces",
+				ToLayer:   "infrastructures",
 			},
 			{
-				From: &Layer{
-					Name: "usecases", Pkgs: []string{"github.com/sodefrin/test/src/usecases"},
-				},
-				To: &Layer{
-					Name: "utils", Pkgs: []string{"log"},
-				},
+				FromLayer: "usecases",
+				ToLayer:   "utils",
 			},
 			{
-				From: &Layer{
-					Name: "infrastructures", Pkgs: []string{"github.com/sodefrin/test/src/infrastructures/proto", "google.golang.org/grpc"},
-				},
-				To: &Layer{
-					Name: "utils", Pkgs: []string{"log"},
-				},
+				FromLayer: "infrastructures",
+				ToLayer:   "utils",
 			},
 			{
-				From: &Layer{
-					Name: "interfaces", Pkgs: []string{"github.com/sodefrin/test/src/interfaces"},
-				},
-				To: &Layer{
-					Name: "utils", Pkgs: []string{"log"},
-				},
+				FromLayer: "interfaces",
+				ToLayer:   "utils",
 			},
 		},
 	}
