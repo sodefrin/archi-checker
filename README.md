@@ -1,6 +1,6 @@
 # archi-checker
 
-![Go](https://github.com/sodefrin/archi-checker/workflows/Go/badge.svg?branch=master)
+![build-and-test](https://github.com/sodefrin/archi-checker/workflows/build-and-test/badge.svg)
 
 archi-checker is dependency vaidation tool. 
 
