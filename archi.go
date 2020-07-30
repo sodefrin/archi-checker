@@ -70,6 +70,11 @@ func ReadArchitectureFromUML(umlPath string) (*Architecture, error) {
 	pkgs := map[string]string{}
 	deps := []*Dependency{}
 
+	a := &Architecture{
+		Packages:     pkgs,
+		Dependencies: deps,
+	}
+
 	r := bufio.NewReader(f)
 	for {
 		b, _, err := r.ReadLine()
@@ -86,7 +91,10 @@ func ReadArchitectureFromUML(umlPath string) (*Architecture, error) {
 			if err != nil {
 				return nil, err
 			}
-			pkgs[p] = l
+			if _, ok := a.GetLayer(p); ok {
+				return nil, fmt.Errorf("%s belongs to 2 layer. One package must belongs to only one package.", p)
+			}
+			a.Packages[p] = l
 		}
 
 		if isDependency(line) {
@@ -94,14 +102,11 @@ func ReadArchitectureFromUML(umlPath string) (*Architecture, error) {
 			if err != nil {
 				return nil, err
 			}
-			deps = append(deps, d)
+			a.Dependencies = append(a.Dependencies, d)
 		}
 	}
 
-	return &Architecture{
-		Packages:     pkgs,
-		Dependencies: deps,
-	}, nil
+	return a, nil
 }
 
 func isLayer(line string) bool {

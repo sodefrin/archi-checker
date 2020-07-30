@@ -254,3 +254,13 @@ func TestArchitectureValid(t *testing.T) {
 		})
 	}
 }
+
+func TestReadArchitectureFromUMLDuplicatedDefinition(t *testing.T) {
+	umls := []string{"testdata/duplicated.uml", "testdata/duplicated_child.uml"}
+	for _, uml := range umls {
+		_, err := ReadArchitectureFromUML(uml)
+		if err == nil {
+			t.Fatal("expected duplication error")
+		}
+	}
+}
