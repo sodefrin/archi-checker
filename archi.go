@@ -86,6 +86,9 @@ func ReadArchitectureFromUML(umlPath string) (*Architecture, error) {
 			if err != nil {
 				return nil, err
 			}
+			if _, ok := pkgs[p]; ok {
+				return nil, fmt.Errorf("%s belongs to 2 layer. One package must belongs to only one package.", p)
+			}
 			pkgs[p] = l
 		}
 
