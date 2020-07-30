@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"sort"
 
 	"golang.org/x/mod/modfile"
 )
@@ -28,6 +29,9 @@ Options:
 
 -package, -p
   Package path of your project, By default use gomodule path.
+
+-init, -i
+  Create default uml file .archi-checker.yml.
 `
 
 const (
@@ -43,6 +47,7 @@ func run() int {
 		strict  bool
 		umlPath string
 		pkgName string
+		init    bool
 	)
 
 	flag.BoolVar(&version, "version", false, "")
@@ -59,6 +64,9 @@ func run() int {
 
 	flag.StringVar(&pkgName, "package", "", "")
 	flag.StringVar(&pkgName, "p", "", "")
+
+	flag.BoolVar(&init, "init", false, "")
+	flag.BoolVar(&init, "i", false, "")
 
 	flag.Parse()
 
@@ -92,6 +100,14 @@ func run() int {
 		return exitError
 	}
 
+	if init {
+		return createUML(pkgName, pkgs)
+	}
+
+	return validate(pkgName, umlPath, pkgs, strict)
+}
+
+func validate(pkgName, umlPath string, pkgs []string, strict bool) int {
 	ips, err := ParsePkgs(pkgName, pkgs...)
 	if err != nil {
 		fmt.Printf("[ERROR] Failed to parse packages; %s\n", err)
@@ -123,6 +139,51 @@ func run() int {
 
 	if len(invalidImports) > 0 || len(unknownImports) > 0 && strict {
 		return exitError
+	}
+
+	return exitOK
+}
+
+func createUML(pkgName string, pkgs []string) int {
+	ips, err := ParsePkgs(pkgName, pkgs...)
+	if err != nil {
+		fmt.Printf("[ERROR] Failed to parse packages; %s\n", err)
+		return exitError
+	}
+
+	f, err := os.Create(".archi-checker.uml")
+	if err != nil {
+		fmt.Printf("[ERROR] Failed to create uml file; %s\n", err)
+	}
+	defer func() {
+		if err := f.Close(); err != nil {
+			fmt.Printf("[ERROR] Failed to close file; %s\n", err)
+		}
+	}()
+
+	isExists := map[string]bool{}
+	distinctPkgs := sort.StringSlice{}
+
+	for _, v := range ips {
+		if ok := isExists[v.To]; ok {
+			continue
+		}
+
+		if !isOfficialPkg(v.To) {
+			isExists[v.To] = true
+			distinctPkgs = append(distinctPkgs, v.To)
+		}
+	}
+
+	sort.Sort(distinctPkgs)
+
+	ret := ""
+	for _, pkg := range distinctPkgs {
+		ret = ret + fmt.Sprintf("default : %s\n", pkg)
+	}
+
+	if _, err := f.Write([]byte(ret)); err != nil {
+		fmt.Printf("[ERROR] Failed to write file; %s\n", err)
 	}
 
 	return exitOK
