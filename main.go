@@ -127,7 +127,9 @@ func validate(pkgName, umlPath string, pkgs []string, strict bool) int {
 
 	for _, ip := range invalidImports {
 		importpos := ip.FileSet.Position(ip.Import.Path.ValuePos)
-		fmt.Printf("%s: cannot import %s from %s\n", importpos, ip.To, ip.From)
+		toLayer, _ := deps.GetLayer(ip.To)
+		fromLayer, _ := deps.GetLayer(ip.From)
+		fmt.Printf("%s: cannot import %s (%s) from %s (%s)\n", importpos, ip.To, toLayer, ip.From, fromLayer)
 	}
 
 	if strict {
