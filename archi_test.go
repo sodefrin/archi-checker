@@ -256,8 +256,11 @@ func TestArchitectureValid(t *testing.T) {
 }
 
 func TestReadArchitectureFromUMLDuplicatedDefinition(t *testing.T) {
-	_, err := ReadArchitectureFromUML("testdata/duplicated.uml")
-	if err == nil {
-		t.Fatal("expected duplicated error")
+	umls := []string{"testdata/duplicated.uml", "testdata/duplicated_child.uml"}
+	for _, uml := range umls {
+		_, err := ReadArchitectureFromUML(uml)
+		if err == nil {
+			t.Fatal("expected duplication error")
+		}
 	}
 }
