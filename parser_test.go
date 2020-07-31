@@ -13,7 +13,7 @@ func TestParsePkgs(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	ret, err := ParsePkgs("xxxx.xxx", "xxx.xxx/a", "xxx.xxx/b")
+	ret, err := ParsePkgs("xxxx.xxx", true, "xxx.xxx/a", "xxx.xxx/b")
 	if err != nil {
 		t.Fatal(err)
 	}

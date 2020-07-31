@@ -32,6 +32,9 @@ Options:
 
 -init, -i
   Create default uml file .archi-checker.yml.
+
+-test-ignore, -t
+  Ignore test file.
 `
 
 const (
@@ -44,10 +47,11 @@ func run() int {
 		version bool
 		help    bool
 
-		strict  bool
-		umlPath string
-		pkgName string
-		init    bool
+		strict     bool
+		umlPath    string
+		pkgName    string
+		init       bool
+		ignoreTest bool
 	)
 
 	flag.BoolVar(&version, "version", false, "")
@@ -67,6 +71,9 @@ func run() int {
 
 	flag.BoolVar(&init, "init", false, "")
 	flag.BoolVar(&init, "i", false, "")
+
+	flag.BoolVar(&ignoreTest, "test-ignore", false, "")
+	flag.BoolVar(&ignoreTest, "t", false, "")
 
 	flag.Parse()
 
@@ -101,14 +108,14 @@ func run() int {
 	}
 
 	if init {
-		return createUML(pkgName, pkgs)
+		return createUML(pkgName, pkgs, ignoreTest)
 	}
 
-	return validate(pkgName, umlPath, pkgs, strict)
+	return validate(pkgName, umlPath, pkgs, strict, ignoreTest)
 }
 
-func validate(pkgName, umlPath string, pkgs []string, strict bool) int {
-	ips, err := ParsePkgs(pkgName, pkgs...)
+func validate(pkgName, umlPath string, pkgs []string, strict, ignoreTest bool) int {
+	ips, err := ParsePkgs(pkgName, ignoreTest, pkgs...)
 	if err != nil {
 		fmt.Printf("[ERROR] Failed to parse packages; %s\n", err)
 		return exitError
@@ -146,8 +153,8 @@ func validate(pkgName, umlPath string, pkgs []string, strict bool) int {
 	return exitOK
 }
 
-func createUML(pkgName string, pkgs []string) int {
-	ips, err := ParsePkgs(pkgName, pkgs...)
+func createUML(pkgName string, pkgs []string, ignoreTest bool) int {
+	ips, err := ParsePkgs(pkgName, ignoreTest, pkgs...)
 	if err != nil {
 		fmt.Printf("[ERROR] Failed to parse packages; %s\n", err)
 		return exitError
