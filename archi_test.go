@@ -79,22 +79,6 @@ func TestArchitectureGetLayer(t *testing.T) {
 			wantLayer: "",
 			wantOK:    false,
 		},
-		"not contains": {
-			pkgs: map[string]string{
-				"a": "la",
-			},
-			pkg:       "ab",
-			wantLayer: "",
-			wantOK:    false,
-		},
-		"contains": {
-			pkgs: map[string]string{
-				"a": "la",
-			},
-			pkg:       "a/b",
-			wantLayer: "la",
-			wantOK:    true,
-		},
 	}
 
 	for k, v := range testCases {
@@ -252,15 +236,5 @@ func TestArchitectureValid(t *testing.T) {
 				t.Fatalf("want OK %v but have %v", v.wantOK, ok)
 			}
 		})
-	}
-}
-
-func TestReadArchitectureFromUMLDuplicatedDefinition(t *testing.T) {
-	umls := []string{"testdata/duplicated.uml", "testdata/duplicated_child.uml"}
-	for _, uml := range umls {
-		_, err := ReadArchitectureFromUML(uml)
-		if err == nil {
-			t.Fatal("expected duplication error")
-		}
 	}
 }
