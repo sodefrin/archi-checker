@@ -35,28 +35,6 @@ func TestCheck(t *testing.T) {
 			wantInvalidImports: []*Import{},
 			wantUnknownImports: []*Import{},
 		},
-		"child_pkg": {
-			haveArchi: &Architecture{
-				Packages: map[string]string{
-					"xxx.xxx/a": "a",
-					"xxx.xxx/b": "b",
-				},
-				Dependencies: []*Dependency{
-					{
-						FromLayer: "a",
-						ToLayer:   "b",
-					},
-				},
-			},
-			haveIps: []*Import{
-				{
-					From: "xxx.xxx/a",
-					To:   "xxx.xxx/b/c",
-				},
-			},
-			wantInvalidImports: []*Import{},
-			wantUnknownImports: []*Import{},
-		},
 		"unknown": {
 			haveArchi: &Architecture{
 				Packages: map[string]string{

@@ -142,7 +142,12 @@ func validate(pkgName, umlPath string, pkgs []string, strict, ignoreTest bool) i
 	if strict {
 		for _, ip := range unknownImports {
 			importpos := ip.FileSet.Position(ip.Import.Path.ValuePos)
-			fmt.Printf("%s: unknown package (%s) is imported\n", importpos, ip.To)
+			if _, ok := deps.GetLayer(ip.To); !ok {
+				fmt.Printf("%s: %s is not defined in uml\n", importpos, ip.To)
+			}
+			if _, ok := deps.GetLayer(ip.From); !ok {
+				fmt.Printf("%s: %s is not defined in uml\n", importpos, ip.From)
+			}
 		}
 	}
 
@@ -172,6 +177,17 @@ func createUML(pkgName string, pkgs []string, ignoreTest bool) int {
 
 	isExists := map[string]bool{}
 	distinctPkgs := sort.StringSlice{}
+
+	for _, p := range pkgs {
+		if ok := isExists[p]; ok {
+			continue
+		}
+
+		if !isOfficialPkg(p) {
+			isExists[p] = true
+			distinctPkgs = append(distinctPkgs, p)
+		}
+	}
 
 	for _, v := range ips {
 		if ok := isExists[v.To]; ok {
