@@ -1,0 +1,4 @@
+default : github.com/google/go-cmp/cmp
+default : github.com/google/go-cmp/cmp/cmpopts
+default : github.com/sodefrin/archi-checker
+default : golang.org/x/mod/modfile
