@@ -17,7 +17,7 @@ default : github.com/sodefrin/archi-checker
 default : golang.org/x/mod/modfile
 ```
 
-Edit created .archi-checkr.yml to group package like below.
+Edit created .archi-checkr.uml to group package like below.
 
 ```
 util : github.com/google/go-cmp/cmp
