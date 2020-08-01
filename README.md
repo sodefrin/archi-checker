@@ -9,7 +9,7 @@ This tool is a linter that checks dependencies based on import statements.
 Create default .archi-checker.uml.
 
 ```
-$ archi-checkr -init  $(go list ./...)
+$ archi-checker -init  $(go list ./...)
 $ cat .archi-checker.uml
 default : github.com/google/go-cmp/cmp
 default : github.com/google/go-cmp/cmp/cmpopts
