@@ -2,54 +2,43 @@
 
 ![build-and-test](https://github.com/sodefrin/archi-checker/workflows/build-and-test/badge.svg)
 
-archi-checker is dependency vaidation tool. 
-
-## Install
-
-```
-go get -u github.com/sodefrin/archi-checker
-```
+This tool is a linter that checks dependencies based on import statements.
 
 ## Usage
 
-archi-chcker validates packages dependencies using UML definition.
-
-For example, this is the dependency of this package.
-
-![normaql-archi](./uml/normal_archi.png)
+Create default .archi-checker.uml.
 
 ```
-archi: github.com/sodefrin/archi-checker/src/archi
-check: github.com/sodefrin/archi-checker/src/check
-parser: github.com/sodefrin/archi-checker/src/parser
-
-check -> archi
-check -> parser
+$ archi-checkr -init  $(go list ./...)
+$ cat .archi-checker.uml
+default : github.com/google/go-cmp/cmp
+default : github.com/google/go-cmp/cmp/cmpopts
+default : github.com/sodefrin/archi-checker
+default : golang.org/x/mod/modfile
 ```
 
-We can validate this package using archi-checker command.
+Edit created .archi-checkr.yml to group package like below.
 
 ```
-$ archi-checker -uml uml/this_package.uml github.com/sodefrin/archi-checker github.com/sodefrin/archi-checker/src/archi github.com/archi-checker/src/check github.com/sodefrin/archi-checker/src/parser  
+util : github.com/google/go-cmp/cmp
+util : github.com/google/go-cmp/cmp/cmpopts
+main : github.com/sodefrin/archi-checker
+util : golang.org/x/mod/modfile
 ```
 
-If we change dependency like below to apply DIP, the error wil be repoted.
-
-![dip-archi](./uml/dip_archi.png)
+Then describe dependency between each package group.
 
 ```
-archi: github.com/sodefrin/archi-checker/src/archi
-check: github.com/sodefrin/archi-checker/src/check
-parser: github.com/sodefrin/archi-checker/src/parser
+util : github.com/google/go-cmp/cmp
+util : github.com/google/go-cmp/cmp/cmpopts
+main : github.com/sodefrin/archi-checker
+util : golang.org/x/mod/modfile
 
-archi -> check
-parser -> check
+main -> util
 ```
 
+Then validate dependency.
+
 ```
-$ archi-checker -uml uml/this_package.uml github.com/sodefrin/archi-checker github.com/sodefrin/archi-checker/src/archi github.com/archi-checker/src/check github.com/sodefrin/archi-checker/src/parser  
-$ src/check/check_test.go:7:2: cannot import github.com/sodefrin/archi-checker/src/archi from github.com/sodefrin/archi-checker/src/check
-$ src/check/check_test.go:8:2: cannot import github.com/sodefrin/archi-checker/src/parser from github.com/sodefrin/archi-checker/src/check
-$ src/check/check.go:4:2: cannot import github.com/sodefrin/archi-checker/src/archi from github.com/sodefrin/archi-checker/src/check
-$ src/check/check.go:5:2: cannot import github.com/sodefrin/archi-checker/src/parser from github.com/sodefrin/archi-checker/src/check
+$ archi-checker ($go list ./...)
 ```
